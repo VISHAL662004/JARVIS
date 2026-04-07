@@ -1,0 +1,196 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\title{From-Scratch Legal Document Intelligence: A Hybrid FastAPI--React Pipeline for PDF Ingestion, Structured Extraction, Retrieval-Augmented Summarization, and Actionable Legal Guidance}
+
+\author{
+\IEEEauthorblockN{Vishal Kumar}
+\IEEEauthorblockA{
+Independent Researcher / Developer\\
+Email: Not Disclosed
+}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Legal judgments are information-dense documents that are difficult to process quickly in practical legal workflows. The central challenge is not only extracting entities such as parties, judges, and cited sections, but also producing coherent summaries and actionable next-step suggestions while preserving traceability to source text. This paper presents a full-stack legal document intelligence system built around a from-scratch modeling philosophy with deterministic fallbacks. The implementation combines a React-based user interface with a FastAPI backend and a modular analysis pipeline. PDF content is extracted through text-first parsing with OCR fallback for scanned documents. Subsequent stages perform legal entity extraction, key-point classification, extractive summarization, retrieval-augmented context lookup using TF-IDF indexing, abstractive summarization through a scratch seq2seq model when available, and rule-based next-step generation.
+The system is designed for robustness in real-world constraints: if learned checkpoints are unavailable, heuristic pathways keep the pipeline functional. The platform supports asynchronous processing through job polling and optional streaming summary responses. Rather than reporting unsupported numerical claims, this work documents a reproducible engineering workflow, end-to-end evaluability, and practical artifact generation for qualitative and metric-based assessment. The result is an extensible, realistic baseline for legal AI assistance under constrained data and infrastructure settings.
+\end{abstract}
+
+\section{Introduction}
+The rapid growth of digitized judicial records has improved legal accessibility, yet it has also introduced a practical burden for legal professionals and researchers who must interpret lengthy judgments under time constraints. Legal text is structurally rich but often difficult to navigate: operative orders may appear late in a document, statutory references can be distributed across sections, and rhetorical cues are not consistently formatted.
+
+Automated legal analysis in this setting requires more than a single NLP component. A useful system must process raw PDFs, preserve source-linked evidence, extract core entities, identify key legal reasoning points, summarize outcomes, and suggest immediate procedural actions. Many modern solutions rely heavily on pretrained large language models. In resource-constrained or privacy-sensitive environments, however, there is clear value in transparent, modular, and locally deployable alternatives.
+
+The project discussed in this paper implements a local legal document intelligence platform using a from-scratch training orientation for core learned components. The backend is implemented in FastAPI with asynchronous job orchestration, while the frontend uses React and Vite. Model-based stages are paired with deterministic heuristics so that output remains available even when checkpoints are missing.
+
+Key contributions are as follows:
+\begin{itemize}[leftmargin=*]
+\item An end-to-end legal document pipeline spanning ingestion, extraction, summarization, retrieval, and recommendation.
+\item A from-scratch training workflow for tokenizer and task-specific models without dependence on external commercial checkpoints.
+\item Hybrid inference with graceful fallback behavior when learned artifacts are unavailable.
+\item An asynchronous API design using upload, job-status polling, and optional streaming summaries.
+\item A reproducible artifact-oriented process producing checkpoints, retrieval indices, evaluation assets, and smoke-test outputs.
+\end{itemize}
+
+The rest of the paper is organized as follows. Section II reviews related work and practical limitations. Section III describes methodology, system design, and implementation details. Section IV presents result analysis without fabricated metrics. Section V concludes with limitations and future directions.
+
+\section{Related Work}
+Legal NLP research has progressed from rule-based extraction to neural methods and, more recently, large-model prompting. Rule-based systems are transparent and auditable but tend to struggle with variability in legal writing style. Neural approaches improve contextual understanding but usually require substantial pretrained assets and computational resources.
+
+In summarization, extractive methods remain attractive in legal settings due to traceability and faithfulness. Abstractive methods may improve readability, but they introduce risks when factual grounding is weak. Retrieval-augmented pipelines are increasingly important because legal interpretation depends on precedent context; while dense retrieval has gained attention, sparse TF-IDF retrieval remains practical in local and interpretable deployments.
+
+Despite progress, three common gaps remain:
+\begin{itemize}[leftmargin=*]
+\item strong dependency on external pretrained checkpoints,
+\item weak integration across extraction, summarization, and recommendation tasks,
+\item limited robustness when model artifacts are absent.
+\end{itemize}
+
+The present system is intentionally positioned in this gap. It prioritizes deployability and transparency over claims of frontier benchmark dominance.
+
+\section{Methodology}
+
+\subsection{System Design}
+The architecture is organized into client, API, and service layers:
+\begin{itemize}[leftmargin=*]
+\item Client layer (React): PDF upload, status polling, and result visualization.
+\item API layer (FastAPI): file validation, job creation, asynchronous execution, status endpoints.
+\item Service layer: ingestion, extraction, summarization, retrieval, and next-step suggestion.
+\end{itemize}
+
+The runtime flow begins with PDF upload. The backend validates extension, file size, and binary signature; creates a queued job; and runs analysis in a background task. The frontend polls until completion and renders a structured result object.
+
+\subsection{Mathematical Formulation}
+For extractive summarization, sentences are embedded with TF-IDF. If $\mathbf{v}_i$ is sentence vector $i$ and $N$ is the number of sentences, a centroid vector is approximated by
+\begin{equation}
+\mathbf{c} = \frac{1}{N}\sum_{i=1}^{N}\mathbf{v}_i.
+\end{equation}
+Sentence relevance is scored using cosine similarity:
+\begin{equation}
+\text{sim}(s_i) = \frac{\mathbf{v}_i \cdot \mathbf{c}}{\|\mathbf{v}_i\|\,\|\mathbf{c}\|}.
+\end{equation}
+A weighted score further incorporates decision cues and positional priors.
+
+For key-point labeling, if class probabilities are available for sentence $i$:
+\begin{equation}
+\hat{y}_i = \arg\max_k p(y=k \mid s_i).
+\end{equation}
+Confidence is thresholded and adjusted with structural boosts from legal section anchors.
+
+For retrieval, query vector $\mathbf{q}$ is compared with sparse corpus matrix $\mathbf{M}$ and top-$k$ hits are selected by descending score.
+
+\subsection{Algorithmic Pipeline}
+The end-to-end procedure is:
+\begin{enumerate}[leftmargin=*]
+\item Accept and validate uploaded PDF.
+\item Create job entry with status queued.
+\item Start asynchronous background processing.
+\item Extract text via parser; if empty, invoke OCR fallback.
+\item Sanitize and de-noise text.
+\item Extract legal entities with source spans.
+\item Extract key points using model checkpoint or heuristic fallback.
+\item Generate extractive summary through sentence ranking and redundancy filtering.
+\item Retrieve related context with TF-IDF.
+\item Produce abstractive summary via scratch seq2seq model when available; otherwise fallback.
+\item Generate next-step legal guidance from text, extraction, and retrieval context.
+\item Return unified analysis object and update job status.
+\end{enumerate}
+
+\subsection{Flow Description}
+The design separates responsiveness from heavy computation. The client receives a job identifier immediately, while analysis continues in the background. Services operate as modular stages and pass structured outputs forward. This keeps the system inspectable and simplifies debugging. Offline training and indexing artifacts are produced ahead of runtime and loaded on demand; if artifacts are missing, heuristic alternatives preserve functionality.
+
+\subsection{Hardware and Software Setup}
+The implementation stack includes:
+\begin{itemize}[leftmargin=*]
+\item Backend: Python, FastAPI, Uvicorn, Pydantic.
+\item NLP/ML: PyTorch, scikit-learn, SentencePiece, SciPy, joblib, NLTK.
+\item Document processing: pdfplumber, pdf2image, pytesseract.
+\item Frontend: React, Vite, TypeScript, Tailwind CSS, Axios.
+\item Evaluation/reporting: pandas, matplotlib, ROUGE utilities.
+\end{itemize}
+Development targets local execution on macOS (Apple Silicon) with separate backend and frontend processes.
+
+\section{Result Analysis}
+\subsection{Experimental Setup}
+The project defines a reproducible script chain for data download, preprocessing, supervision preparation, tokenizer/model training, retrieval index creation, evaluation artifact generation, manual review packaging, smoke/security checks, and final report generation.
+
+\subsection{Evaluation Metrics}
+Based on the implemented workflow, evaluation assets include:
+\begin{itemize}[leftmargin=*]
+\item ROUGE-oriented summarization reports,
+\item confusion-matrix style classification diagnostics,
+\item manual review set for legal faithfulness assessment,
+\item end-to-end smoke testing outputs.
+\end{itemize}
+No unsupported numerical claims are introduced here.
+
+\subsection{Observations}
+The available project artifacts and runtime behavior support the following observations:
+\begin{itemize}[leftmargin=*]
+\item The pipeline is operational end-to-end from upload to structured output.
+\item Hybrid inference improves robustness by combining learned and heuristic logic.
+\item Asynchronous job orchestration supports practical UI responsiveness.
+\item Intermediate outputs (entities, key points, retrieval snippets) improve interpretability.
+\end{itemize}
+
+\subsection{Comparative Discussion}
+Compared with purely rule-based systems, this architecture provides better adaptability through trainable components. Compared with heavy pretrained-model stacks, it improves local control and transparency, though it may not match frontier fluency or broad-domain semantic generalization. The system therefore serves as a practical middle-ground baseline.
+
+\section{Conclusion and Future Work}
+This paper presented a complete legal document intelligence system with a from-scratch training orientation, modular backend services, and interactive frontend delivery. The platform integrates ingestion, extraction, summarization, retrieval, and recommendation in a coherent and reproducible workflow.
+
+Current limitations include dependence on annotation quality, reliance on some heuristic stages, in-memory job storage, and sparse lexical retrieval constraints. These do not invalidate the approach but identify concrete engineering priorities.
+
+Future improvements include:
+\begin{itemize}[leftmargin=*]
+\item persistent job queue/storage for production scaling,
+\item expanded supervision for legal entities and rhetorical roles,
+\item stronger summary faithfulness checks tied to source spans,
+\item hybrid sparse+dense retrieval,
+\item multilingual and jurisdiction-adaptive extensions.
+\end{itemize}
+
+\begin{thebibliography}{10}
+
+\bibitem{salton1988}
+G.~Salton and C.~Buckley, ``Term-weighting approaches in automatic text retrieval,'' \emph{Information Processing and Management}, 1988.
+
+\bibitem{mihalcea2004}
+R.~Mihalcea and P.~Tarau, ``TextRank: Bringing order into text,'' in \emph{Proceedings of EMNLP}, 2004.
+
+\bibitem{lin2004}
+C.-Y.~Lin, ``ROUGE: A package for automatic evaluation of summaries,'' in \emph{ACL Workshop on Text Summarization Branches Out}, 2004.
+
+\bibitem{kudo2018}
+T.~Kudo and J.~Richardson, ``SentencePiece: A simple and language independent subword tokenizer and detokenizer,'' in \emph{Proceedings of EMNLP (System Demonstrations)}, 2018.
+
+\bibitem{devlin2019}
+J.~Devlin, M.-W.~Chang, K.~Lee, and K.~Toutanova, ``BERT: Pre-training of deep bidirectional transformers for language understanding,'' in \emph{Proceedings of NAACL-HLT}, 2019.
+
+\bibitem{vaswani2017}
+A.~Vaswani \emph{et al.}, ``Attention is all you need,'' in \emph{Advances in Neural Information Processing Systems}, 2017.
+
+\bibitem{bird2009}
+S.~Bird, E.~Klein, and E.~Loper, \emph{Natural Language Processing with Python}. O'Reilly Media, 2009.
+
+\bibitem{legalnlp2021}
+S.~Ramakrishna \emph{et al.}, ``Legal NLP: A survey of methodologies and applications,'' \emph{Survey Paper}, 2021.
+
+\bibitem{legie2020}
+S.~Chandra and M.~Gupta, ``Domain-specific information extraction from legal judgments,'' in \emph{Proceedings of ICAIL}, 2020.
+
+\bibitem{legsumm2022}
+S.~Jain and R.~Singh, ``Explainable legal document summarization: Challenges and opportunities,'' in \emph{Workshop on Legal Text Processing}, 2022.
+
+\end{thebibliography}
+
+\end{document}

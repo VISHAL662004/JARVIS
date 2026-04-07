@@ -1,0 +1,220 @@
+<mxfile host="app.diagrams.net" modified="2026-04-06T00:00:00.000Z" agent="Mozilla/5.0" version="24.7.17" type="device">
+  <diagram id="runtime-flow" name="Runtime Flow">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="rt_title" value="Legal Document AI - Runtime Request Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontStyle=1;fontSize=24;" parent="1" vertex="1">
+          <mxGeometry x="30" y="20" width="900" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt_row_1" value="ROW 1: Request Intake and Job Queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b7b7b7;dashed=1;fontStyle=1;align=left;" parent="1" vertex="1">
+          <mxGeometry x="30" y="92" width="2130" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_row_2" value="ROW 2: NLP Processing Pipeline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b7b7b7;dashed=1;fontStyle=1;align=left;" parent="1" vertex="1">
+          <mxGeometry x="30" y="246" width="2130" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_row_3" value="ROW 3: Result Delivery and UI Rendering" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b7b7b7;dashed=1;fontStyle=1;align=left;" parent="1" vertex="1">
+          <mxGeometry x="30" y="418" width="2130" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt_lane_client" value="Client Layer (React + Vite)" style="swimlane;html=1;horizontal=1;startSize=28;rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="30" y="80" width="520" height="560" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_lane_api" value="API Layer (FastAPI)" style="swimlane;html=1;horizontal=1;startSize=28;rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="580" y="80" width="620" height="560" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_lane_service" value="Service Layer (Analysis Pipeline)" style="swimlane;html=1;horizontal=1;startSize=28;rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1230" y="80" width="930" height="560" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt_upload" value="Upload UI (UploadPanel)\nUser selects legal PDF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="140" width="210" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_api_client" value="Frontend API Client (api.ts)\nPOST uploadPdf(file)\nGET fetchJob(jobId)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="320" y="140" width="210" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_poll" value="HomePage Polling Loop\nChecks status every 2.5s\nGET /analyze/jobs/{job_id}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="80" y="300" width="250" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_render" value="UI Renders Final Result\nSummary, Entities, Key Points,\nPunishment, Next Steps, PDF Preview" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="80" y="470" width="300" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt_upload_ep" value="Upload Endpoint\nPOST /api/v1/analyze/upload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="620" y="130" width="230" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_validate" value="Input Validation\nvalidate_pdf_upload()\n1) .pdf extension\n2) file size limit\n3) PDF binary signature" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="890" y="120" width="280" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_jobstore" value="Job Store (InMemoryJobStore)\nCreates queued jobs\nTracks running/completed/failed" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=15;fillColor=#ffffff;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="640" y="300" width="260" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_bg" value="Background Worker\n_process_job(job_id, payload)\nExecutes analysis_pipeline.run()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="930" y="280" width="240" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_status_ep" value="Status Endpoint\nGET /api/v1/analyze/jobs/{job_id}\nReturns JobStatus (+ result when ready)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="620" y="460" width="260" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_stream" value="Streaming Endpoint (Optional)\nPOST /api/v1/analyze/stream-summary\nSSE sends summary chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="910" y="460" width="270" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt_ingest" value="PDF Ingestion Service\nExtract text with pdfplumber\nFallback OCR: pdf2image + pytesseract" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1270" y="130" width="280" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_clean" value="Text Cleanup\nremove_boilerplate()\nSanitize and normalize text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1590" y="145" width="210" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_entity" value="Entity Extraction Service\nRegex-based extraction of:\nparties, judges, sections, dates,\npunishment and final order" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1270" y="280" width="280" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_keypoints" value="Key Point Extraction Service\nUses trained classifier if available\nFalls back to heuristic labels" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1590" y="280" width="250" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_sum_ext" value="Summarization Service (Extractive)\nRanks sentences with TF-IDF\nRemoves redundant sentences" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1860" y="280" width="250" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_rag" value="Retrieval Service (RAG)\nLoads TF-IDF vectorizer, matrix, corpus\nReturns top_k related precedents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1270" y="440" width="270" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_sum_abs" value="Abstractive Summary\nUses scratch seq2seq model when present\nOtherwise returns extractive fallback" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1570" y="440" width="280" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_next" value="Next Steps Service\nRule-based legal follow-up actions\nBased on text, extraction and retrieval" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1880" y="440" width="250" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_result" value="Build Final AnalysisResult\nsummary_extractive\nsummary_abstractive\nkey_points\nnext_steps\nextraction\nretrieval_context\ndisclaimer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1710" y="130" width="420" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="rt_note" value="How Runtime Works (simple view):\n1) Frontend uploads PDF and immediately gets a job_id.\n2) Backend runs NLP tasks in the background and updates job state.\n3) Frontend polls job status until result is completed.\n4) UI panels are filled from one AnalysisResult response.\n5) Services are fault-tolerant with model-to-heuristic fallbacks." style="shape=note;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="30" y="670" width="980" height="190" as="geometry"/>
+        </mxCell>
+        <mxCell id="rt_data" value="Runtime Artifacts Loaded:\n- models/checkpoints/scratch/*\n- data/processed/tfidf_vectorizer.joblib\n- data/processed/tfidf_matrix.npz\n- data/processed/tfidf_corpus.json" style="shape=note;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1040" y="670" width="760" height="150" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="re1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4a6fa5;" parent="1" source="rt_upload" target="rt_api_client" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re2" value="multipart/form-data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4a6fa5;" parent="1" source="rt_api_client" target="rt_upload_ep" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6aa84f;" parent="1" source="rt_upload_ep" target="rt_validate" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6aa84f;" parent="1" source="rt_validate" target="rt_jobstore" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re5" value="job_id + status_url" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6aa84f;" parent="1" source="rt_upload_ep" target="rt_poll" edge="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="560" y="165"/><mxPoint x="560" y="355"/></Array></mxGeometry></mxCell>
+        <mxCell id="re6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6aa84f;" parent="1" source="rt_jobstore" target="rt_bg" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_bg" target="rt_ingest" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_ingest" target="rt_clean" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_clean" target="rt_entity" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_clean" target="rt_keypoints" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_clean" target="rt_sum_ext" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_sum_ext" target="rt_rag" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_rag" target="rt_sum_abs" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_entity" target="rt_next" edge="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1660" y="560"/></Array></mxGeometry></mxCell>
+        <mxCell id="re15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_rag" target="rt_next" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_entity" target="rt_result" edge="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1660" y="240"/></Array></mxGeometry></mxCell>
+        <mxCell id="re17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_keypoints" target="rt_result" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_sum_abs" target="rt_result" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#c38f00;" parent="1" source="rt_next" target="rt_result" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6aa84f;" parent="1" source="rt_result" target="rt_jobstore" edge="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="2140" y="70"/><mxPoint x="760" y="70"/><mxPoint x="760" y="355"/></Array></mxGeometry></mxCell>
+        <mxCell id="re21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4a6fa5;" parent="1" source="rt_poll" target="rt_status_ep" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="re22" value="completed + result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4a6fa5;" parent="1" source="rt_status_ep" target="rt_render" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="training-flow" name="Training and Data Pipeline">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="tr_title" value="Legal Document AI - Offline Data and Training Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontStyle=1;fontSize=24;" parent="1" vertex="1">
+          <mxGeometry x="30" y="20" width="1000" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tr_row_1" value="ROW 1: Data Collection and Preparation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b7b7b7;dashed=1;fontStyle=1;align=left;" parent="1" vertex="1">
+          <mxGeometry x="30" y="92" width="2130" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_row_2" value="ROW 2: Model Training (From Scratch)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b7b7b7;dashed=1;fontStyle=1;align=left;" parent="1" vertex="1">
+          <mxGeometry x="30" y="292" width="2130" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_row_3" value="ROW 3: Evaluation, Validation and Packaging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#b7b7b7;dashed=1;fontStyle=1;align=left;" parent="1" vertex="1">
+          <mxGeometry x="30" y="482" width="2130" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tr_0" value="Raw Data Source\nIndian Supreme Court judgments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="40" y="120" width="230" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_1" value="download_dataset.py\nOutput: data/raw_judgments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="320" y="120" width="240" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_2" value="preprocess.py\nOutput: documents.json + cleaned text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="610" y="120" width="250" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_3" value="step1_define_outputs.py\nDefines annotation schema assets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="910" y="120" width="250" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_4" value="step2_prepare_supervision.py\nBuilds train/val/test splits\nAlso generates reports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="1210" y="120" width="260" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tr_5" value="step3_train_tokenizer.py\nTrains SentencePiece tokenizer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="320" y="320" width="240" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_6" value="step4_train_ner_from_scratch.py\nCreates NER BiLSTM checkpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="610" y="320" width="250" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_7" value="step5_train_keypoints_from_scratch.py\nCreates key-point classifier" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="910" y="320" width="250" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_8" value="step5b_train_decision_classifier.py\nCreates decision sentence classifier" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1210" y="320" width="280" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_9" value="step6_train_summarizer_from_scratch.py\nCreates seq2seq summarizer checkpoint" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="1530" y="320" width="280" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tr_10" value="step7_build_retrieval_index.py\nBuilds TF-IDF vectorizer, matrix and corpus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="610" y="510" width="290" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_11" value="step8_evaluate_pipeline.py\nComputes ROUGE and pipeline metrics" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="940" y="510" width="250" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_12" value="step8_manual_review.py\nCreates 20-document review pack" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1230" y="510" width="240" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_13" value="step9_security_and_smoke.py\nRuns smoke and security checks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="1510" y="510" width="240" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_14" value="step10_generate_report.py\nGenerates final pipeline_report.md" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="1790" y="510" width="240" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="tr_artifacts" value="Runtime Artifacts Produced:\n- models/checkpoints/scratch/tokenizer\n- models/checkpoints/scratch/keypoint/classifier.joblib\n- models/checkpoints/scratch/decision/classifier.joblib\n- models/checkpoints/scratch/summarizer/model.pt + meta.json\n- data/processed/tfidf_vectorizer.joblib\n- data/processed/tfidf_matrix.npz\n- data/processed/tfidf_corpus.json" style="shape=note;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="40" y="700" width="800" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="tr_explain" value="How Offline Pipeline Supports Runtime:\n1) Data and labels are prepared first, then models are trained from scratch.\n2) Retrieval index and checkpoints are exported as runtime assets.\n3) Backend services load these assets during inference.\n4) If any checkpoint is missing, fallback logic keeps analysis available." style="shape=note;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="880" y="700" width="860" height="180" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="te1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_0" target="tr_1" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_1" target="tr_2" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_2" target="tr_3" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_3" target="tr_4" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te5" value="splits" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_4" target="tr_5" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_4" target="tr_6" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_4" target="tr_7" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_4" target="tr_8" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_5" target="tr_9" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_2" target="tr_10" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_6" target="tr_11" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_7" target="tr_11" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_8" target="tr_11" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_9" target="tr_11" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_11" target="tr_12" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_12" target="tr_13" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="te17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" parent="1" source="tr_13" target="tr_14" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
