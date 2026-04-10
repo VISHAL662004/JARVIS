@@ -3,6 +3,7 @@ from __future__ import annotations
 from app.config import settings
 from app.schemas.analysis import AnalysisResult
 from app.services.entity_extractor import EntityExtractionService
+from app.services.document_chat import ChatDocumentContext, DocumentChunk
 from app.services.groq_summary import groq_summary
 from app.services.keypoint_extractor import KeyPointExtractionService
 from app.services.next_steps import NextStepsService
@@ -24,10 +25,21 @@ class AnalysisPipeline:
         self.next_steps = NextStepsService()
 
     def run(self, pdf_bytes: bytes) -> AnalysisResult:
+        result, _ = self.run_with_context(pdf_bytes)
+        return result
+
+    def run_with_context(self, pdf_bytes: bytes) -> tuple[AnalysisResult, ChatDocumentContext]:
         doc = self.ingestion.extract_text(pdf_bytes)
         text = doc.full_text
         page_marked_text = doc.page_marked_text or text
         filtered_text = remove_boilerplate(text)
+        chat_context = ChatDocumentContext(
+            full_text=text,
+            clean_text=filtered_text,
+            page_marked_text=page_marked_text,
+            page_texts=doc.pages,
+            chunks=self._build_chunks(doc.pages),
+        )
 
         extraction = self.entity_extractor.extract(filtered_text)
         key_points = self.key_points.extract(filtered_text)
@@ -54,7 +66,7 @@ class AnalysisPipeline:
         summary_abstractive = groq_abstractive or self.summarizer.summarize_abstractive(summary_abstractive_input)
         suggestions = self.next_steps.suggest(filtered_text, extraction, retrieval_hits)
 
-        return AnalysisResult(
+        result = AnalysisResult(
             summary_extractive=summary_extractive,
             summary_abstractive=summary_abstractive,
             key_points=key_points,
@@ -63,6 +75,29 @@ class AnalysisPipeline:
             retrieval_context=retrieval_hits,
             disclaimer=settings.legal_disclaimer,
         )
+
+        return result, chat_context
+
+    def _build_chunks(self, pages: list[object], chunk_size: int = 1200, overlap: int = 180) -> list[DocumentChunk]:
+        chunks: list[DocumentChunk] = []
+        for page in pages:
+            text = getattr(page, "text", "").strip()
+            page_number = getattr(page, "page", None)
+            if not text:
+                continue
+            if len(text) <= chunk_size:
+                chunks.append(DocumentChunk(page=page_number, text=text))
+                continue
+            start = 0
+            while start < len(text):
+                end = min(start + chunk_size, len(text))
+                chunk = text[start:end].strip()
+                if chunk:
+                    chunks.append(DocumentChunk(page=page_number, text=chunk))
+                if end >= len(text):
+                    break
+                start = max(end - overlap, start + 1)
+        return chunks
 
 
 analysis_pipeline = AnalysisPipeline()

@@ -68,6 +68,27 @@ class AnalyzeResponse(BaseModel):
     status_url: str
 
 
+class ChatTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
+class ChatQuestion(BaseModel):
+    question: str = Field(min_length=1, max_length=2000)
+    history: list[ChatTurn] = Field(default_factory=list)
+
+
+class ChatSource(BaseModel):
+    page: int | None = None
+    snippet: str
+
+
+class ChatAnswer(BaseModel):
+    answer: str
+    sources: list[ChatSource] = Field(default_factory=list)
+    disclaimer: str
+
+
 class HealthResponse(BaseModel):
     status: Literal["ok"]
     app_name: str
