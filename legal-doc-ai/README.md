@@ -39,5 +39,10 @@ Use `terminal.txt` step-by-step:
 - `GET /api/v1/analyze/jobs/{job_id}`
 - `POST /api/v1/analyze/stream-summary`
 
+## Optional Groq Summary Upgrade
+- Set `LEGAL_DOC_GROQ_API_KEY` in `backend/.env` to enable Groq-powered summary generation.
+- The API key stays on the backend and is never exposed to the frontend.
+- If the key is missing or the API call fails, the app falls back to the local summarizer.
+
 ## Disclaimer
 Outputs are assistive only and are not legal advice.

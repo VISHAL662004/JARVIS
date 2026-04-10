@@ -22,6 +22,12 @@ class DocumentText:
     def full_text(self) -> str:
         return "\n\n".join(page.text for page in self.pages if page.text)
 
+    @property
+    def page_marked_text(self) -> str:
+        return "\n\n".join(
+            f"[Page {page.page}]\n{page.text}" for page in self.pages if page.text
+        )
+
 
 class PDFIngestionService:
     def extract_text(self, pdf_bytes: bytes) -> DocumentText:

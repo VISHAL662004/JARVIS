@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,6 +11,11 @@ class Settings(BaseSettings):
     api_prefix: str = "/api/v1"
     max_upload_size_mb: int = 25
     allowed_extensions: tuple[str, ...] = (".pdf",)
+    groq_api_key: str | None = None
+    groq_api_url: str = "https://api.groq.com/openai/v1/chat/completions"
+    groq_model: str = "llama-3.3-70b-versatile"
+    groq_timeout_sec: float = 45.0
+    groq_context_chars: int = 12000
     legal_disclaimer: str = (
         "This system provides automated analysis support and is not legal advice. "
         "Consult a licensed legal professional before making legal decisions."
@@ -30,7 +34,7 @@ class Settings(BaseSettings):
     corpus_meta_path: Path = data_processed_dir / "tfidf_corpus.json"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(Path(__file__).resolve().parents[1] / ".env"),
         env_prefix="LEGAL_DOC_",
         extra="ignore",
     )
