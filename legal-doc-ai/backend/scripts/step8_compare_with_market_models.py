@@ -77,6 +77,107 @@ def markdown_table(rows: list[EvalRow]) -> str:
     return "\n".join(lines)
 
 
+def _extract_stack_components(name: str) -> list[str]:
+    if ":" not in name:
+        return []
+    parts = [p.strip() for p in name.split(":", 1)[1].split("+")]
+    return [p for p in parts if p]
+
+
+def _pairwise_rows(your_row: EvalRow, market_row: EvalRow) -> list[dict]:
+    components = _extract_stack_components(market_row.name)
+    if len(components) < 3:
+        return []
+
+    # Each external model is compared only on the metrics it directly influences.
+    return [
+        {
+            "component_type": "Zero-shot Classifier",
+            "market_model": components[0],
+            "metrics": [
+                {
+                    "name": "keypoint_f1_mean",
+                    "your": your_row.keypoint_f1_mean,
+                    "market": market_row.keypoint_f1_mean,
+                },
+                {
+                    "name": "decision_capture_rate",
+                    "your": your_row.decision_capture_rate,
+                    "market": market_row.decision_capture_rate,
+                },
+            ],
+        },
+        {
+            "component_type": "NER Model",
+            "market_model": components[1],
+            "metrics": [
+                {
+                    "name": "judge_detect_rate",
+                    "your": your_row.judge_detect_rate,
+                    "market": market_row.judge_detect_rate,
+                },
+                {
+                    "name": "section_detect_rate",
+                    "your": your_row.section_detect_rate,
+                    "market": market_row.section_detect_rate,
+                },
+            ],
+        },
+        {
+            "component_type": "Summarizer Model",
+            "market_model": components[2],
+            "metrics": [
+                {
+                    "name": "rouge1",
+                    "your": your_row.rouge1,
+                    "market": market_row.rouge1,
+                },
+                {
+                    "name": "rouge2",
+                    "your": your_row.rouge2,
+                    "market": market_row.rouge2,
+                },
+                {
+                    "name": "rougeL",
+                    "your": your_row.rougeL,
+                    "market": market_row.rougeL,
+                },
+            ],
+        },
+    ]
+
+
+def markdown_pairwise_section(your_row: EvalRow, market_rows: list[EvalRow]) -> list[str]:
+    lines: list[str] = ["## Separate My Model vs Each Market Model"]
+
+    for market_row in market_rows:
+        pairwise = _pairwise_rows(your_row, market_row)
+        if not pairwise:
+            continue
+
+        lines.append("")
+        lines.append(f"### Source Stack: {market_row.name}")
+
+        for block in pairwise:
+            lines.append("")
+            lines.append(f"#### Your Pipeline vs {block['market_model']} ({block['component_type']})")
+            lines.append("| Metric | Your Pipeline | Market Model | Winner |")
+            lines.append("|---|---:|---:|---|")
+
+            for metric in block["metrics"]:
+                your_v = float(metric["your"])
+                market_v = float(metric["market"])
+                if abs(your_v - market_v) < 1e-12:
+                    winner = "Tie"
+                elif your_v > market_v:
+                    winner = "Your Pipeline"
+                else:
+                    winner = "Market Model"
+                lines.append(f"| {metric['name']} | {your_v:.4f} | {market_v:.4f} | {winner} |")
+
+    return lines
+
+
 def eval_pipeline_model(
     key_test: list[dict],
     sum_test: list[dict],
@@ -277,6 +378,15 @@ def main() -> None:
             "same_test_splits": True,
         },
     }
+
+    your_row = next((r for r in rows if r.name.startswith("Your Pipeline")), None)
+    market_rows = [r for r in rows if not r.name.startswith("Your Pipeline")]
+    pairwise_payload: list[dict] = []
+    if your_row is not None:
+        for market_row in market_rows:
+            pairwise_payload.extend(_pairwise_rows(your_row, market_row))
+
+    out_json["pairwise_my_model_vs_each_market_model"] = pairwise_payload
     (args.report_dir / "comparison_with_market_models.json").write_text(json.dumps(out_json, indent=2), encoding="utf-8")
 
     md = [
@@ -298,6 +408,10 @@ def main() -> None:
     for m in metrics:
         best = max(rows, key=lambda x: getattr(x, m))
         md.append(f"- {m}: {best.name} ({getattr(best, m):.4f})")
+
+    if your_row is not None and market_rows:
+        md.append("")
+        md.extend(markdown_pairwise_section(your_row, market_rows))
 
     (args.report_dir / "comparison_with_market_models.md").write_text("\n".join(md), encoding="utf-8")
     print(json.dumps(out_json, indent=2))
